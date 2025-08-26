@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iron Man Prompt Vault</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Orbitron", sans-serif;
+      background: radial-gradient(circle at center, #0d0d0d, #000);
+      color: #00ffe0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      text-align: center;
+      padding: 10px;
+      background: #111;
+      border-bottom: 2px solid #ff001e;
+      color: #ff001e;
+      font-size: 20px;
+    }
+    #editor {
+      flex: 1;
+      padding: 20px;
+      width: 100%;
+      box-sizing: border-box;
+      border: none;
+      resize: none;
+      background: rgba(0, 0, 0, 0.8);
+      color: #00ffe0;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-y: auto;
+    }
+    #editor:focus {
+      outline: none;
+    }
+    footer {
+      background: #111;
+      border-top: 2px solid #ff001e;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn {
+      background: #ff001e;
+      border: none;
+      color: white;
+      padding: 8px 15px;
+      margin: 0 5px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+    .btn:hover {
+      background: #00ffe0;
+      color: black;
+    }
+    .color-palette {
+      display: flex;
+      gap: 10px;
+    }
+    .color-btn {
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>⚡ Iron Man Prompt Vault ⚡</header>
+  
+  <textarea id="editor" placeholder="Write or edit your prompts here..."></textarea>
+  
+  <footer>
+    <div class="color-palette">
+      <div class="color-btn" style="background:#ff001e;" onclick="changeColor('#ff001e')"></div>
+      <div class="color-btn" style="background:#00ffe0;" onclick="changeColor('#00ffe0')"></div>
+      <div class="color-btn" style="background:#39ff14;" onclick="changeColor('#39ff14')"></div>
+      <div class="color-btn" style="background:#ffd700;" onclick="changeColor('#ffd700')"></div>
+      <div class="color-btn" style="background:#ffffff;" onclick="changeColor('#ffffff')"></div>
+    </div>
+    <div>
+      <button class="btn" onclick="saveFile()">💾 Save</button>
+      <input type="file" id="fileInput" style="display:none" onchange="loadFile(event)">
+      <button class="btn" onclick="document.getElementById('fileInput').click()">📂 Open</button>
+    </div>
+  </footer>
+
+  <audio id="bg-music" src="a.mp3" autoplay loop></audio>
+
+  <script>
+    function changeColor(color) {
+      document.getElementById("editor").style.color = color;
+    }
+
+    function saveFile() {
+      const text = document.getElementById("editor").value;
+      const blob = new Blob([text], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.download = "prompts.txt";
+      link.href = window.URL.createObjectURL(blob);
+      link.click();
+    }
+
+    function loadFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById("editor").value = e.target.result;
+      };
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>
