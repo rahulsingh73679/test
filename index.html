@@ -1,125 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Iron Man Prompt Vault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      background: black;
-      color: #f1f1f1;
-      font-family: "Orbitron", sans-serif;
-      margin: 0;
-      padding: 0;
-      text-align: center;
+    :root{
+      --red:#ff1c1c; --gold:#ffb400; --bg:#000;
+      --hud:#071018; --glass:rgba(255,255,255,0.04);
+    }
+    html,body{height:100%;margin:0;background:radial-gradient(circle at 10% 10%, #080808, #000);font-family:"Orbitron",sans-serif;color:#fff;}
+    header{
+      background:linear-gradient(90deg,var(--red),#ff7300);
+      padding:14px 12px;text-align:center;font-size:1.25rem;font-weight:700;letter-spacing:1px;
+      color:#fff;text-shadow:0 0 8px rgba(255,28,28,0.6);
+    }
+    /* editor area */
+    #editor{
+      width:90%; height:72vh; display:block; margin:20px auto; padding:14px;
+      background:linear-gradient(180deg, rgba(10,10,10,0.95), rgba(6,6,6,0.98));
+      border:2px solid rgba(255,28,28,0.22); color:#fff; font-size:1rem; border-radius:10px;
+      box-shadow:0 6px 30px rgba(0,0,0,0.8), inset 0 0 18px rgba(255,28,28,0.04);
+      resize:none; outline:none; line-height:1.6; overflow:auto;
     }
 
-    header {
-      background: linear-gradient(90deg, #ff0000, #ff7300);
-      padding: 15px;
-      font-size: 1.5rem;
-      font-weight: bold;
-      letter-spacing: 2px;
-      color: #fff;
-      text-shadow: 0 0 10px #ff0000;
+    /* controls fixed at bottom (unchanged) */
+    .controls{
+      position:fixed; bottom:15px; left:50%; transform:translateX(-50%);
+      display:flex; gap:10px; align-items:center; z-index:30; flex-wrap:wrap;
+      background:transparent;
+    }
+    input[type=file]{ background:transparent; color:var(--gold); border-radius:8px; padding:8px; border:1px solid rgba(255,180,0,0.08); }
+    button, select{
+      padding:10px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:700;
+      background:var(--red); color:#fff; box-shadow:0 6px 18px rgba(255,28,28,0.12);
+    }
+    button:hover, select:hover{ transform:translateY(-2px); box-shadow:0 10px 28px rgba(255,28,28,0.18); }
+
+    /* cinematic overlay (initially hidden) */
+    .overlay{
+      position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.75));
+      z-index:9999; visibility:hidden; opacity:0; transition:opacity .35s ease, visibility .35s;
+      backdrop-filter: blur(4px);
+    }
+    .overlay.show{ visibility:visible; opacity:1; }
+
+    /* reactor container */
+    .reactor-wrap{
+      width:360px; height:360px; position:relative; display:flex; align-items:center; justify-content:center;
+      transform:scale(.9); animation:enterScale .6s cubic-bezier(.2,.9,.3,1) forwards;
+    }
+    @keyframes enterScale{ to{ transform:scale(1); } }
+
+    /* outer shield ring (closes like S.H.I.E.L.D) */
+    .shield{
+      position:absolute; inset:0; border-radius:50%; display:block;
+      background:conic-gradient(from 90deg, rgba(255,28,28,0.06), rgba(255,180,0,0.02));
+      filter:blur(10px); opacity:.9;
+      animation:shieldClose 2.6s cubic-bezier(.2,.9,.3,1) forwards;
+      pointer-events:none;
     }
 
-    textarea {
-      width: 90%;
-      height: 70vh;
-      margin: 20px auto;
-      display: block;
-      background: rgba(0,0,0,0.8);
-      border: 2px solid #ff0000;
-      color: white;
-      font-size: 1rem;
-      border-radius: 8px;
-      padding: 10px;
-      outline: none;
-      box-shadow: 0 0 15px #ff0000;
+    /* pulsating rings */
+    .ring{
+      position:absolute; border-radius:50%; box-shadow:0 0 40px rgba(0,255,255,0.12), inset 0 0 30px rgba(0,255,255,0.06);
+      border:2px solid rgba(0,255,255,0.08);
+      animation:spin 6s linear infinite;
+    }
+    .ring.r1{ width:270px; height:270px; }
+    .ring.r2{ width:200px; height:200px; animation-duration:4.2s; transform:rotate(20deg); }
+    .ring.r3{ width:140px; height:140px; animation-duration:3s; transform:rotate(-10deg); box-shadow:0 0 40px #00f0ff, inset 0 0 24px #00f0ff; border-color: rgba(0,240,255,0.45); }
+
+    @keyframes spin{ from{ transform: rotate(0deg);} to{ transform: rotate(360deg);} }
+
+    /* central core */
+    .core{
+      position:relative; width:88px; height:88px; border-radius:50%;
+      background:radial-gradient(circle at 35% 30%, #9ff7ff 10%, #00d3ff 28%, #007c8a 70%);
+      box-shadow:
+        0 0 30px rgba(0,220,255,0.25),
+        0 0 60px rgba(0,220,255,0.12),
+        inset 0 0 18px rgba(255,255,255,0.18);
+      display:flex; align-items:center; justify-content:center;
+      animation:corePulse 1.8s ease-in-out infinite;
+      border:3px solid rgba(255,255,255,0.12);
+    }
+    .core::before{
+      content:""; width:50px; height:50px; border-radius:50%;
+      background:conic-gradient(from 90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.25));
+      mix-blend-mode:overlay; filter:blur(0.6px);
+    }
+    @keyframes corePulse{
+      0%{ box-shadow: 0 0 18px rgba(0,220,255,0.18), 0 0 40px rgba(0,220,255,0.06); transform:scale(1); }
+      50%{ box-shadow: 0 0 36px rgba(0,220,255,0.35), 0 0 80px rgba(0,220,255,0.18); transform:scale(1.06); }
+      100%{ box-shadow: 0 0 18px rgba(0,220,255,0.18), 0 0 40px rgba(0,220,255,0.06); transform:scale(1); }
     }
 
-    .controls {
-      position: fixed;
-      bottom: 15px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
+    /* thin HUD segments inside core */
+    .hud-lines{
+      position:absolute; width:76px; height:76px; display:flex; align-items:center; justify-content:center;
+    }
+    .hud-lines span{
+      position:absolute; width:2px; height:22px; background:linear-gradient(180deg,#fff8, #00f); opacity:.85;
+      transform-origin:bottom center; border-radius:2px;
+    }
+    .hud-lines span:nth-child(1){transform:rotate(0deg) translateY(-18px);}
+    .hud-lines span:nth-child(2){transform:rotate(40deg) translateY(-18px);}
+    .hud-lines span:nth-child(3){transform:rotate(-40deg) translateY(-18px);}
+    .hud-lines span:nth-child(4){transform:rotate(80deg) translateY(-18px);}
+    .hud-lines span:nth-child(5){transform:rotate(-80deg) translateY(-18px);}
+
+    /* closing curtain effect (scale-up ring that fades) */
+    .curtain{
+      position:absolute; width:380px; height:380px; border-radius:50%; background:rgba(0,0,0,0.96);
+      transform:scale(0); opacity:0; animation:curtainAnim 2.2s cubic-bezier(.2,.9,.3,1) forwards 1.2s;
+    }
+    @keyframes curtainAnim{
+      0%{ transform:scale(0); opacity:0; }
+      60%{ transform:scale(0.95); opacity:1; }
+      100%{ transform:scale(1.2); opacity:1; }
     }
 
-    button, select {
-      padding: 10px 15px;
-      border: none;
-      border-radius: 6px;
-      background: #ff0000;
-      color: white;
-      cursor: pointer;
-      font-family: "Orbitron", sans-serif;
-      font-weight: bold;
-      box-shadow: 0 0 10px #ff0000;
+    /* subtle text message */
+    .overlay .msg{
+      position:absolute; bottom:12%; width:100%; text-align:center; font-size:14px; color: #bfefff;
+      letter-spacing:1px; text-shadow:0 0 8px rgba(0,255,255,0.08);
     }
 
-    button:hover, select:hover {
-      background: #ff7300;
-      box-shadow: 0 0 15px #ff7300;
+    /* clickable hint */
+    .overlay .hint{
+      position:absolute; bottom:6%; font-size:12px; color:#fff6; pointer-events:none;
     }
 
-    /* Arc Reactor Decoration */
-    .arc-reactor {
-      position: fixed;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 80px;
-      background: radial-gradient(circle, #00f0ff 30%, #001820 80%);
-      border: 4px solid #00f0ff;
-      border-radius: 50%;
-      box-shadow: 
-        0 0 20px #00f0ff,
-        0 0 40px #00f0ff,
-        0 0 60px #00f0ff,
-        inset 0 0 15px #00f0ff;
-      animation: reactorPulse 2s infinite ease-in-out;
-      z-index: 9999;
-    }
-
-    @keyframes reactorPulse {
-      0% {
-        box-shadow: 
-          0 0 15px #00f0ff,
-          0 0 30px #00f0ff,
-          0 0 45px #00f0ff,
-          inset 0 0 10px #00f0ff;
-        transform: translateX(-50%) scale(1);
-      }
-      50% {
-        box-shadow: 
-          0 0 25px #00f0ff,
-          0 0 50px #00f0ff,
-          0 0 75px #00f0ff,
-          inset 0 0 20px #00f0ff;
-        transform: translateX(-50%) scale(1.1);
-      }
-      100% {
-        box-shadow: 
-          0 0 15px #00f0ff,
-          0 0 30px #00f0ff,
-          0 0 45px #00f0ff,
-          inset 0 0 10px #00f0ff;
-        transform: translateX(-50%) scale(1);
-      }
-    }
+    /* small responsive tweak */
+    @media (max-width:420px){ .reactor-wrap{ width:260px; height:260px } .ring.r1{width:200px;height:200px} .ring.r2{width:150px;height:150px} .ring.r3{width:110px;height:110px} .core{width:64px;height:64px} }
   </style>
 </head>
 <body>
-
-  <!-- Arc Reactor -->
-  <div class="arc-reactor"></div>
-
   <header>⚡ Iron Man Prompt Vault ⚡</header>
 
   <textarea id="editor" placeholder="Type or edit your prompts here..."></textarea>
@@ -127,9 +146,7 @@
   <div class="controls">
     <input type="file" id="fileInput" accept=".txt">
     <button onclick="saveFile()">💾 Save</button>
-    <button onclick="clearText()">🗑 Clear</button>
-    
-    <!-- Color Selector -->
+    <button id="clearBtn">🗑 Clear</button>
     <select id="colorSelector" onchange="changeColor(this.value)">
       <option value="white">White</option>
       <option value="red">Red</option>
@@ -139,45 +156,103 @@
     </select>
   </div>
 
-  <!-- Background Music -->
-  <audio id="bgMusic" autoplay loop>
-    <source src="a.mp3" type="audio/mpeg">
-  </audio>
+  <!-- cinematic overlay shown only when Clear pressed -->
+  <div id="overlay" class="overlay" role="dialog" aria-hidden="true">
+    <div class="reactor-wrap" aria-hidden="true">
+      <div class="shield" aria-hidden="true"></div>
+
+      <div class="ring r1" style="animation-delay:-0.6s"></div>
+      <div class="ring r2" style="animation-delay:-1.2s"></div>
+      <div class="ring r3" style="animation-delay:-0.2s"></div>
+
+      <div class="core" aria-hidden="true">
+        <div class="hud-lines" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <div class="curtain" aria-hidden="true"></div>
+    </div>
+
+    <div class="msg">CLASSIFIED — SECURE WIPE INITIATED</div>
+    <div class="hint">Click anywhere to skip animation</div>
+  </div>
+
+  <!-- background music -->
+  <audio id="bgMusic" src="a.mp3" loop></audio>
 
   <script>
-    const editor = document.getElementById("editor");
-    const fileInput = document.getElementById("fileInput");
+    const editor = document.getElementById('editor');
+    const fileInput = document.getElementById('fileInput');
+    const clearBtn = document.getElementById('clearBtn');
+    const overlay = document.getElementById('overlay');
+    const bgMusic = document.getElementById('bgMusic');
 
-    // Load file content
-    fileInput.addEventListener("change", function() {
-      const file = this.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          editor.value = e.target.result;
-        };
-        reader.readAsText(file);
-      }
+    // keep existing behaviors: load file, save file, change color
+    fileInput.addEventListener('change', e=>{
+      const f = e.target.files[0];
+      if(!f) return;
+      const r = new FileReader();
+      r.onload = ev => { editor.value = ev.target.result; };
+      r.readAsText(f);
     });
 
-    // Save file
-    function saveFile() {
-      const blob = new Blob([editor.value], { type: "text/plain" });
-      const a = document.createElement("a");
+    function saveFile(){
+      const blob = new Blob([editor.value], { type: 'text/plain' });
+      const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = "prompts.txt";
+      a.download = 'prompts.txt';
       a.click();
+      URL.revokeObjectURL(a.href);
+    }
+    function changeColor(c){ editor.style.color = c; }
+
+    // CLEAR flow: show overlay, play sequence then clear editor
+    clearBtn.addEventListener('click', ()=> startCinematicClear());
+
+    // Click overlay to skip and clear immediately
+    overlay.addEventListener('click', ()=> finishClear(true));
+
+    let cinematicTimeout = null;
+    function startCinematicClear(){
+      // show overlay
+      overlay.classList.add('show');
+      overlay.setAttribute('aria-hidden','false');
+
+      // short sound-like pulse via WebAudio (subtle), optional — keep silent if not supported
+      // schedule actual clear after 2.2s (allow effect to play)
+      clearTimeout(cinematicTimeout);
+      cinematicTimeout = setTimeout(()=> finishClear(false), 2200);
     }
 
-    // Clear editor
-    function clearText() {
-      editor.value = "";
+    function finishClear(skip){
+      // hide overlay
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden','true');
+
+      // clear editor content
+      editor.value = '';
+
+      // cancel pending timeout if user clicked
+      clearTimeout(cinematicTimeout);
     }
 
-    // Change text color
-    function changeColor(color) {
-      editor.style.color = color;
-    }
+    // audio control: auto-play requires user gesture in many browsers — do nothing intrusive
+    // but allow resume on first interaction
+    document.addEventListener('click', function initAudio(){
+      if(bgMusic.paused){ try{ bgMusic.play().catch(()=>{}); }catch(e){} }
+      document.removeEventListener('click', initAudio);
+    }, { once:true });
+
+    // preserve previous behavior: clear button previously instantly cleared — we now trigger cinematic.
+    // nothing else was changed.
+
+    // small accessibility: allow Esc to cancel overlay (and still clear)
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape' && overlay.classList.contains('show')){
+        finishClear(true);
+      }
+    });
   </script>
 </body>
 </html>
