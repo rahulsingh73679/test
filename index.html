@@ -1,257 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Iron Man Prompt Vault</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arc Reactor Popup</title>
   <style>
-    :root{
-      --red:#ff1c1c; --gold:#ffb400; --bg:#000;
-      --hud:#071018; --glass:rgba(255,255,255,0.04);
-    }
-    html,body{height:100%;margin:0;background:radial-gradient(circle at 10% 10%, #080808, #000);font-family:"Orbitron",sans-serif;color:#fff;}
-    header{
-      background:linear-gradient(90deg,var(--red),#ff7300);
-      padding:14px 12px;text-align:center;font-size:1.25rem;font-weight:700;letter-spacing:1px;
-      color:#fff;text-shadow:0 0 8px rgba(255,28,28,0.6);
-    }
-    /* editor area */
-    #editor{
-      width:90%; height:72vh; display:block; margin:20px auto; padding:14px;
-      background:linear-gradient(180deg, rgba(10,10,10,0.95), rgba(6,6,6,0.98));
-      border:2px solid rgba(255,28,28,0.22); color:#fff; font-size:1rem; border-radius:10px;
-      box-shadow:0 6px 30px rgba(0,0,0,0.8), inset 0 0 18px rgba(255,28,28,0.04);
-      resize:none; outline:none; line-height:1.6; overflow:auto;
+    body {
+      background: #0a0a0a;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
     }
 
-    /* controls fixed at bottom (unchanged) */
-    .controls{
-      position:fixed; bottom:15px; left:50%; transform:translateX(-50%);
-      display:flex; gap:10px; align-items:center; z-index:30; flex-wrap:wrap;
-      background:transparent;
-    }
-    input[type=file]{ background:transparent; color:var(--gold); border-radius:8px; padding:8px; border:1px solid rgba(255,180,0,0.08); }
-    button, select{
-      padding:10px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:700;
-      background:var(--red); color:#fff; box-shadow:0 6px 18px rgba(255,28,28,0.12);
-    }
-    button:hover, select:hover{ transform:translateY(-2px); box-shadow:0 10px 28px rgba(255,28,28,0.18); }
-
-    /* cinematic overlay (initially hidden) */
-    .overlay{
-      position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
-      background:linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.75));
-      z-index:9999; visibility:hidden; opacity:0; transition:opacity .35s ease, visibility .35s;
-      backdrop-filter: blur(4px);
-    }
-    .overlay.show{ visibility:visible; opacity:1; }
-
-    /* reactor container */
-    .reactor-wrap{
-      width:360px; height:360px; position:relative; display:flex; align-items:center; justify-content:center;
-      transform:scale(.9); animation:enterScale .6s cubic-bezier(.2,.9,.3,1) forwards;
-    }
-    @keyframes enterScale{ to{ transform:scale(1); } }
-
-    /* outer shield ring (closes like S.H.I.E.L.D) */
-    .shield{
-      position:absolute; inset:0; border-radius:50%; display:block;
-      background:conic-gradient(from 90deg, rgba(255,28,28,0.06), rgba(255,180,0,0.02));
-      filter:blur(10px); opacity:.9;
-      animation:shieldClose 2.6s cubic-bezier(.2,.9,.3,1) forwards;
-      pointer-events:none;
+    button {
+      margin-top: 50px;
+      padding: 12px 25px;
+      font-size: 18px;
+      background: #1e90ff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
     }
 
-    /* pulsating rings */
-    .ring{
-      position:absolute; border-radius:50%; box-shadow:0 0 40px rgba(0,255,255,0.12), inset 0 0 30px rgba(0,255,255,0.06);
-      border:2px solid rgba(0,255,255,0.08);
-      animation:spin 6s linear infinite;
-    }
-    .ring.r1{ width:270px; height:270px; }
-    .ring.r2{ width:200px; height:200px; animation-duration:4.2s; transform:rotate(20deg); }
-    .ring.r3{ width:140px; height:140px; animation-duration:3s; transform:rotate(-10deg); box-shadow:0 0 40px #00f0ff, inset 0 0 24px #00f0ff; border-color: rgba(0,240,255,0.45); }
-
-    @keyframes spin{ from{ transform: rotate(0deg);} to{ transform: rotate(360deg);} }
-
-    /* central core */
-    .core{
-      position:relative; width:88px; height:88px; border-radius:50%;
-      background:radial-gradient(circle at 35% 30%, #9ff7ff 10%, #00d3ff 28%, #007c8a 70%);
-      box-shadow:
-        0 0 30px rgba(0,220,255,0.25),
-        0 0 60px rgba(0,220,255,0.12),
-        inset 0 0 18px rgba(255,255,255,0.18);
-      display:flex; align-items:center; justify-content:center;
-      animation:corePulse 1.8s ease-in-out infinite;
-      border:3px solid rgba(255,255,255,0.12);
-    }
-    .core::before{
-      content:""; width:50px; height:50px; border-radius:50%;
-      background:conic-gradient(from 90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.25));
-      mix-blend-mode:overlay; filter:blur(0.6px);
-    }
-    @keyframes corePulse{
-      0%{ box-shadow: 0 0 18px rgba(0,220,255,0.18), 0 0 40px rgba(0,220,255,0.06); transform:scale(1); }
-      50%{ box-shadow: 0 0 36px rgba(0,220,255,0.35), 0 0 80px rgba(0,220,255,0.18); transform:scale(1.06); }
-      100%{ box-shadow: 0 0 18px rgba(0,220,255,0.18), 0 0 40px rgba(0,220,255,0.06); transform:scale(1); }
+    /* Popup styles */
+    .popup {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
     }
 
-    /* thin HUD segments inside core */
-    .hud-lines{
-      position:absolute; width:76px; height:76px; display:flex; align-items:center; justify-content:center;
-    }
-    .hud-lines span{
-      position:absolute; width:2px; height:22px; background:linear-gradient(180deg,#fff8, #00f); opacity:.85;
-      transform-origin:bottom center; border-radius:2px;
-    }
-    .hud-lines span:nth-child(1){transform:rotate(0deg) translateY(-18px);}
-    .hud-lines span:nth-child(2){transform:rotate(40deg) translateY(-18px);}
-    .hud-lines span:nth-child(3){transform:rotate(-40deg) translateY(-18px);}
-    .hud-lines span:nth-child(4){transform:rotate(80deg) translateY(-18px);}
-    .hud-lines span:nth-child(5){transform:rotate(-80deg) translateY(-18px);}
-
-    /* closing curtain effect (scale-up ring that fades) */
-    .curtain{
-      position:absolute; width:380px; height:380px; border-radius:50%; background:rgba(0,0,0,0.96);
-      transform:scale(0); opacity:0; animation:curtainAnim 2.2s cubic-bezier(.2,.9,.3,1) forwards 1.2s;
-    }
-    @keyframes curtainAnim{
-      0%{ transform:scale(0); opacity:0; }
-      60%{ transform:scale(0.95); opacity:1; }
-      100%{ transform:scale(1.2); opacity:1; }
+    .popup.active {
+      display: flex;
     }
 
-    /* subtle text message */
-    .overlay .msg{
-      position:absolute; bottom:12%; width:100%; text-align:center; font-size:14px; color: #bfefff;
-      letter-spacing:1px; text-shadow:0 0 8px rgba(0,255,255,0.08);
+    /* CSS ARC REACTOR */
+    .reactor {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #00faff 10%, #003f47 60%);
+      box-shadow: 0 0 40px #00faff, inset 0 0 30px #00faff;
+      animation: pulse 2s infinite;
     }
 
-    /* clickable hint */
-    .overlay .hint{
-      position:absolute; bottom:6%; font-size:12px; color:#fff6; pointer-events:none;
+    .reactor::before, .reactor::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      border: 3px solid #00faff;
+      top: -15px;
+      left: -15px;
+      right: -15px;
+      bottom: -15px;
+      animation: spin 6s linear infinite;
     }
 
-    /* small responsive tweak */
-    @media (max-width:420px){ .reactor-wrap{ width:260px; height:260px } .ring.r1{width:200px;height:200px} .ring.r2{width:150px;height:150px} .ring.r3{width:110px;height:110px} .core{width:64px;height:64px} }
+    .reactor::after {
+      animation-direction: reverse;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 20px #00faff, inset 0 0 20px #00faff; }
+      50% { box-shadow: 0 0 60px #00faff, inset 0 0 40px #00faff; }
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* IMAGE ARC REACTOR (if file exists) */
+    .image-reactor {
+      max-width: 180px;
+      animation: pulseGlow 2s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { filter: drop-shadow(0 0 15px #00faff); }
+      50% { filter: drop-shadow(0 0 35px #00faff); }
+    }
   </style>
 </head>
 <body>
-  <header>⚡ Iron Man Prompt Vault ⚡</header>
 
-  <textarea id="editor" placeholder="Type or edit your prompts here..."></textarea>
+  <button id="clearBtn">Clear</button>
 
-  <div class="controls">
-    <input type="file" id="fileInput" accept=".txt">
-    <button onclick="saveFile()">💾 Save</button>
-    <button id="clearBtn">🗑 Clear</button>
-    <select id="colorSelector" onchange="changeColor(this.value)">
-      <option value="white">White</option>
-      <option value="red">Red</option>
-      <option value="blue">Blue</option>
-      <option value="green">Green</option>
-      <option value="yellow">Yellow</option>
-    </select>
+  <div class="popup" id="popup">
+    <!-- By default CSS reactor -->
+    <div class="reactor" id="cssReactor"></div>
+    <!-- Hidden image reactor -->
+    <img src="arc1.webp" alt="Arc Reactor" class="image-reactor" id="imageReactor" style="display:none;">
   </div>
-
-  <!-- cinematic overlay shown only when Clear pressed -->
-  <div id="overlay" class="overlay" role="dialog" aria-hidden="true">
-    <div class="reactor-wrap" aria-hidden="true">
-      <div class="shield" aria-hidden="true"></div>
-
-      <div class="ring r1" style="animation-delay:-0.6s"></div>
-      <div class="ring r2" style="animation-delay:-1.2s"></div>
-      <div class="ring r3" style="animation-delay:-0.2s"></div>
-
-      <div class="core" aria-hidden="true">
-        <div class="hud-lines" aria-hidden="true">
-          <span></span><span></span><span></span><span></span><span></span>
-        </div>
-      </div>
-
-      <div class="curtain" aria-hidden="true"></div>
-    </div>
-
-    <div class="msg">CLASSIFIED — SECURE WIPE INITIATED</div>
-    <div class="hint">Click anywhere to skip animation</div>
-  </div>
-
-  <!-- background music -->
-  <audio id="bgMusic" src="a.mp3" loop></audio>
 
   <script>
-    const editor = document.getElementById('editor');
-    const fileInput = document.getElementById('fileInput');
-    const clearBtn = document.getElementById('clearBtn');
-    const overlay = document.getElementById('overlay');
-    const bgMusic = document.getElementById('bgMusic');
+    const clearBtn = document.getElementById("clearBtn");
+    const popup = document.getElementById("popup");
+    const cssReactor = document.getElementById("cssReactor");
+    const imageReactor = document.getElementById("imageReactor");
 
-    // keep existing behaviors: load file, save file, change color
-    fileInput.addEventListener('change', e=>{
-      const f = e.target.files[0];
-      if(!f) return;
-      const r = new FileReader();
-      r.onload = ev => { editor.value = ev.target.result; };
-      r.readAsText(f);
+    // Check if image exists
+    fetch("arc1.webp").then(res => {
+      if (res.ok) {
+        cssReactor.style.display = "none";
+        imageReactor.style.display = "block";
+      }
+    }).catch(() => {
+      // No image, fallback stays as CSS reactor
     });
 
-    function saveFile(){
-      const blob = new Blob([editor.value], { type: 'text/plain' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'prompts.txt';
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }
-    function changeColor(c){ editor.style.color = c; }
-
-    // CLEAR flow: show overlay, play sequence then clear editor
-    clearBtn.addEventListener('click', ()=> startCinematicClear());
-
-    // Click overlay to skip and clear immediately
-    overlay.addEventListener('click', ()=> finishClear(true));
-
-    let cinematicTimeout = null;
-    function startCinematicClear(){
-      // show overlay
-      overlay.classList.add('show');
-      overlay.setAttribute('aria-hidden','false');
-
-      // short sound-like pulse via WebAudio (subtle), optional — keep silent if not supported
-      // schedule actual clear after 2.2s (allow effect to play)
-      clearTimeout(cinematicTimeout);
-      cinematicTimeout = setTimeout(()=> finishClear(false), 2200);
-    }
-
-    function finishClear(skip){
-      // hide overlay
-      overlay.classList.remove('show');
-      overlay.setAttribute('aria-hidden','true');
-
-      // clear editor content
-      editor.value = '';
-
-      // cancel pending timeout if user clicked
-      clearTimeout(cinematicTimeout);
-    }
-
-    // audio control: auto-play requires user gesture in many browsers — do nothing intrusive
-    // but allow resume on first interaction
-    document.addEventListener('click', function initAudio(){
-      if(bgMusic.paused){ try{ bgMusic.play().catch(()=>{}); }catch(e){} }
-      document.removeEventListener('click', initAudio);
-    }, { once:true });
-
-    // preserve previous behavior: clear button previously instantly cleared — we now trigger cinematic.
-    // nothing else was changed.
-
-    // small accessibility: allow Esc to cancel overlay (and still clear)
-    document.addEventListener('keydown', (e)=>{
-      if(e.key === 'Escape' && overlay.classList.contains('show')){
-        finishClear(true);
-      }
+    clearBtn.addEventListener("click", () => {
+      popup.classList.add("active");
+      setTimeout(() => {
+        popup.classList.remove("active");
+      }, 3000); // hide after 3s
     });
   </script>
 </body>
