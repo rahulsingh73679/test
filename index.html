@@ -6,119 +6,179 @@
   <title>Iron Man Prompt Vault</title>
   <style>
     body {
-      margin: 0;
+      background: black;
+      color: #f1f1f1;
       font-family: "Orbitron", sans-serif;
-      background: radial-gradient(circle at center, #0d0d0d, #000);
-      color: #00ffe0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
-    header {
+      margin: 0;
+      padding: 0;
       text-align: center;
-      padding: 10px;
-      background: #111;
-      border-bottom: 2px solid #ff001e;
-      color: #ff001e;
-      font-size: 20px;
     }
-    #editor {
-      flex: 1;
-      padding: 20px;
-      width: 100%;
-      box-sizing: border-box;
-      border: none;
-      resize: none;
-      background: rgba(0, 0, 0, 0.8);
-      color: #00ffe0;
-      font-size: 16px;
-      line-height: 1.6;
-      overflow-y: auto;
-    }
-    #editor:focus {
-      outline: none;
-    }
-    footer {
-      background: #111;
-      border-top: 2px solid #ff001e;
-      padding: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .btn {
-      background: #ff001e;
-      border: none;
-      color: white;
-      padding: 8px 15px;
-      margin: 0 5px;
-      border-radius: 10px;
-      cursor: pointer;
+
+    header {
+      background: linear-gradient(90deg, #ff0000, #ff7300);
+      padding: 15px;
+      font-size: 1.5rem;
       font-weight: bold;
-      transition: 0.2s;
+      letter-spacing: 2px;
+      color: #fff;
+      text-shadow: 0 0 10px #ff0000;
     }
-    .btn:hover {
-      background: #00ffe0;
-      color: black;
+
+    textarea {
+      width: 90%;
+      height: 70vh;
+      margin: 20px auto;
+      display: block;
+      background: rgba(0,0,0,0.8);
+      border: 2px solid #ff0000;
+      color: white;
+      font-size: 1rem;
+      border-radius: 8px;
+      padding: 10px;
+      outline: none;
+      box-shadow: 0 0 15px #ff0000;
     }
-    .color-palette {
+
+    .controls {
+      position: fixed;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
       gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
-    .color-btn {
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-      border: 2px solid #fff;
+
+    button, select {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      background: #ff0000;
+      color: white;
       cursor: pointer;
+      font-family: "Orbitron", sans-serif;
+      font-weight: bold;
+      box-shadow: 0 0 10px #ff0000;
+    }
+
+    button:hover, select:hover {
+      background: #ff7300;
+      box-shadow: 0 0 15px #ff7300;
     }
   </style>
 </head>
 <body>
-  <header>⚡ Iron Man Prompt Vault ⚡</header>
-  
-  <textarea id="editor" placeholder="Write or edit your prompts here..."></textarea>
-  
-  <footer>
-    <div class="color-palette">
-      <div class="color-btn" style="background:#ff001e;" onclick="changeColor('#ff001e')"></div>
-      <div class="color-btn" style="background:#00ffe0;" onclick="changeColor('#00ffe0')"></div>
-      <div class="color-btn" style="background:#39ff14;" onclick="changeColor('#39ff14')"></div>
-      <div class="color-btn" style="background:#ffd700;" onclick="changeColor('#ffd700')"></div>
-      <div class="color-btn" style="background:#ffffff;" onclick="changeColor('#ffffff')"></div>
-    </div>
-    <div>
-      <button class="btn" onclick="saveFile()">💾 Save</button>
-      <input type="file" id="fileInput" style="display:none" onchange="loadFile(event)">
-      <button class="btn" onclick="document.getElementById('fileInput').click()">📂 Open</button>
-    </div>
-  </footer>
+<!-- Add inside <body>, at the very top of notepad.html -->
+<div class="arc-reactor"></div>
 
-  <audio id="bg-music" src="a.mp3" autoplay loop></audio>
+<style>
+/* Arc Reactor Decoration */
+.arc-reactor {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, #00f0ff 30%, #001820 80%);
+  border: 4px solid #00f0ff;
+  border-radius: 50%;
+  box-shadow: 
+    0 0 20px #00f0ff,
+    0 0 40px #00f0ff,
+    0 0 60px #00f0ff,
+    inset 0 0 15px #00f0ff;
+  animation: reactorPulse 2s infinite ease-in-out;
+  z-index: 9999;
+}
+
+/* Glow Animation */
+@keyframes reactorPulse {
+  0% {
+    box-shadow: 
+      0 0 15px #00f0ff,
+      0 0 30px #00f0ff,
+      0 0 45px #00f0ff,
+      inset 0 0 10px #00f0ff;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    box-shadow: 
+      0 0 25px #00f0ff,
+      0 0 50px #00f0ff,
+      0 0 75px #00f0ff,
+      inset 0 0 20px #00f0ff;
+    transform: translateX(-50%) scale(1.1);
+  }
+  100% {
+    box-shadow: 
+      0 0 15px #00f0ff,
+      0 0 30px #00f0ff,
+      0 0 45px #00f0ff,
+      inset 0 0 10px #00f0ff;
+    transform: translateX(-50%) scale(1);
+  }
+}
+</style>
+
+  <header>⚡ Iron Man Prompt Vault ⚡</header>
+
+  <textarea id="editor" placeholder="Type or edit your prompts here..."></textarea>
+
+  <div class="controls">
+    <input type="file" id="fileInput" accept=".txt">
+    <button onclick="saveFile()">💾 Save</button>
+    <button onclick="clearText()">🗑 Clear</button>
+    
+    <!-- Color Selector -->
+    <select id="colorSelector" onchange="changeColor(this.value)">
+      <option value="white">White</option>
+      <option value="red">Red</option>
+      <option value="blue">Blue</option>
+      <option value="green">Green</option>
+      <option value="yellow">Yellow</option>
+    </select>
+  </div>
+
+  <!-- Background Music -->
+  <audio id="bgMusic" autoplay loop>
+    <source src="a.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
-    function changeColor(color) {
-      document.getElementById("editor").style.color = color;
-    }
+    const editor = document.getElementById("editor");
+    const fileInput = document.getElementById("fileInput");
 
+    // Load file content
+    fileInput.addEventListener("change", function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          editor.value = e.target.result;
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // Save file
     function saveFile() {
-      const text = document.getElementById("editor").value;
-      const blob = new Blob([text], { type: "text/plain" });
-      const link = document.createElement("a");
-      link.download = "prompts.txt";
-      link.href = window.URL.createObjectURL(blob);
-      link.click();
+      const blob = new Blob([editor.value], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "prompts.txt";
+      a.click();
     }
 
-    function loadFile(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        document.getElementById("editor").value = e.target.result;
-      };
-      reader.readAsText(file);
+    // Clear editor
+    function clearText() {
+      editor.value = "";
+    }
+
+    // Change text color
+    function changeColor(color) {
+      editor.style.color = color;
     }
   </script>
 </body>
