@@ -66,61 +66,59 @@
       background: #ff7300;
       box-shadow: 0 0 15px #ff7300;
     }
+
+    /* Arc Reactor Decoration */
+    .arc-reactor {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, #00f0ff 30%, #001820 80%);
+      border: 4px solid #00f0ff;
+      border-radius: 50%;
+      box-shadow: 
+        0 0 20px #00f0ff,
+        0 0 40px #00f0ff,
+        0 0 60px #00f0ff,
+        inset 0 0 15px #00f0ff;
+      animation: reactorPulse 2s infinite ease-in-out;
+      z-index: 9999;
+    }
+
+    @keyframes reactorPulse {
+      0% {
+        box-shadow: 
+          0 0 15px #00f0ff,
+          0 0 30px #00f0ff,
+          0 0 45px #00f0ff,
+          inset 0 0 10px #00f0ff;
+        transform: translateX(-50%) scale(1);
+      }
+      50% {
+        box-shadow: 
+          0 0 25px #00f0ff,
+          0 0 50px #00f0ff,
+          0 0 75px #00f0ff,
+          inset 0 0 20px #00f0ff;
+        transform: translateX(-50%) scale(1.1);
+      }
+      100% {
+        box-shadow: 
+          0 0 15px #00f0ff,
+          0 0 30px #00f0ff,
+          0 0 45px #00f0ff,
+          inset 0 0 10px #00f0ff;
+        transform: translateX(-50%) scale(1);
+      }
+    }
   </style>
 </head>
 <body>
-<!-- Add inside <body>, at the very top of notepad.html -->
-<div class="arc-reactor"></div>
 
-<style>
-/* Arc Reactor Decoration */
-.arc-reactor {
-  position: fixed;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 80px;
-  background: radial-gradient(circle, #00f0ff 30%, #001820 80%);
-  border: 4px solid #00f0ff;
-  border-radius: 50%;
-  box-shadow: 
-    0 0 20px #00f0ff,
-    0 0 40px #00f0ff,
-    0 0 60px #00f0ff,
-    inset 0 0 15px #00f0ff;
-  animation: reactorPulse 2s infinite ease-in-out;
-  z-index: 9999;
-}
-
-/* Glow Animation */
-@keyframes reactorPulse {
-  0% {
-    box-shadow: 
-      0 0 15px #00f0ff,
-      0 0 30px #00f0ff,
-      0 0 45px #00f0ff,
-      inset 0 0 10px #00f0ff;
-    transform: translateX(-50%) scale(1);
-  }
-  50% {
-    box-shadow: 
-      0 0 25px #00f0ff,
-      0 0 50px #00f0ff,
-      0 0 75px #00f0ff,
-      inset 0 0 20px #00f0ff;
-    transform: translateX(-50%) scale(1.1);
-  }
-  100% {
-    box-shadow: 
-      0 0 15px #00f0ff,
-      0 0 30px #00f0ff,
-      0 0 45px #00f0ff,
-      inset 0 0 10px #00f0ff;
-    transform: translateX(-50%) scale(1);
-  }
-}
-</style>
+  <!-- Arc Reactor -->
+  <div class="arc-reactor"></div>
 
   <header>⚡ Iron Man Prompt Vault ⚡</header>
 
